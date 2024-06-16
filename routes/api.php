@@ -16,16 +16,27 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 Route::apiResource('users', UserController::class);
+
+// Create token
+Route::post('login', [UserController::class, 'login']);
 
 Route::apiResource('jobs', JobController::class);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::middleware('admin')->match(['put', 'patch'], '/users/{user}', [UserController::class, 'delete']);
-    Route::get('logout', [UserController::class,'logout']);
+    // Retrieving users
+    Route::get('users', [UserController::class, 'index']);
+    Route::get('users/{user}', [UserController::class, 'show']);
+    Route::post('users/search', [UserController::class, 'search']);
+
+    // Delete only accessible by admin token
+    Route::middleware('admin')->delete( 'users/{user}', [UserController::class, 'destroy']);
+
+    // Single user
+    Route::get('/user', function (Request $request) {return $request->user();});
+    Route::match(['put', 'patch'], 'user/edit', [UserController::class, 'update']);
+
+    // Destroy token
+    Route::post('logout', [UserController::class, 'logout']);
 });
 
