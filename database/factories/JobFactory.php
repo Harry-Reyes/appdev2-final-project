@@ -19,7 +19,7 @@ class JobFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'title' => fake()->randomElements([
+            'title' => fake()->randomElement([
                 'Algorithm Developer',
                 'API Developer',
                 'Back-End Developer',
