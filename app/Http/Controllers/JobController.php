@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Job;
+use App\Models\Application;
 use Illuminate\Http\Request;
 
 class JobController extends Controller
@@ -15,7 +16,8 @@ class JobController extends Controller
         $this->middleware('auth:sanctum')->only([
             'store',
             'update',
-            'destroy'
+            'destroy',
+            'apply'
         ]);
     }
 
@@ -57,15 +59,14 @@ class JobController extends Controller
 
         return response()->json([
             'message' => 'Job listed.',
-            'data' =>
-            [
-                'id' => $job->id,
-                'title' => $job->title,
-                'company' => $job->company,
-                'site' => $job->site,
-                'desc' => $job->desc,
-                'updated_at' => $job->updated_at
-            ]
+            'data' => Job::find($job->id, [
+                'id',
+                'title',
+                'company',
+                'site',
+                'desc',
+                'updated_at'
+            ])
         ]);
     }
 
@@ -141,15 +142,14 @@ class JobController extends Controller
 
         return response()->json([
             'message' => 'Job updated.',
-            'data' =>
-            [
-                'id' => $job->id,
-                'title' => $job->title,
-                'company' => $job->company,
-                'site' => $job->site,
-                'desc' => $job->desc,
-                'updated_at' => $job->updated_at
-            ]
+            'data' => $job->only([
+                'id',
+                'title',
+                'company',
+                'site',
+                'desc',
+                'updated_at'
+            ])
         ]);
     }
 
@@ -171,14 +171,44 @@ class JobController extends Controller
 
         return response()->json([
             'message' => 'Job deleted.',
-            'data' =>
-            [
-                'id' => $job->id,
-                'title' => $job->title,
-                'company' => $job->company,
-                'site' => $job->site,
-                'desc' => $job->desc,
-            ]
+            'data' => $job->only([
+                'id',
+                'title',
+                'company',
+                'site',
+                'desc',
+                'updated_at'
+            ])
+        ]);
+    }
+
+    public function apply(Request $request, string $id)
+    {
+        $job = Job::find($id);
+
+        if ($request->user()->id === $job->user_id)
+        {
+            return response()->json([
+                'message' => "You cannot apply to a job listed by you."
+            ], 422);
+        }
+
+        $application = Application::create([
+            'user_id' => $request->user()->id,
+            'job_id' => $job->id
+        ]);
+
+        return response()->json([
+            'message' => 'Sent an application.',
+            'data' => Application::with([
+                'user:id,username',
+                'job:id,title,company'
+            ])->find($application->id, [
+                'id',
+                'user_id',
+                'job_id',
+                'created_at'
+            ])
         ]);
     }
 }
