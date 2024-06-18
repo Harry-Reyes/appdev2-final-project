@@ -10,6 +10,18 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 class JobController extends Controller
 {
     /**
+     * Instantiate a new controller instance.
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum')->only([
+            'store',
+            'update',
+            'destroy'
+        ]);
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index()

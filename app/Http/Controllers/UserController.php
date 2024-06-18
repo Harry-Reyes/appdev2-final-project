@@ -10,6 +10,18 @@ use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum')->only([
+            'index',
+            'show',
+            'search',
+            'update',
+            'destroy',
+            'logout'
+        ]);
+        $this->middleware('admin')->only('destroy');
+    }
     /**
      * Display a listing of the resource.
      */
