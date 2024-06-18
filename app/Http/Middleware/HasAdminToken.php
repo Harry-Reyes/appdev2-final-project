@@ -15,17 +15,11 @@ class HasAdminToken
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->input('token') === null)
+        if (($request->input('token') === null) or ($request->input('token') !== env('ADMIN_TOKEN')))
         {
             return response()->json([
-                'message'=> 'Token is missing'
-            ], 401);
-        }
-        else if ($request->input('token') !== env('ADMIN_TOKEN'))
-        {
-            return response()->json([
-                'message'=> 'Token is invalid'
-            ], 401);
+                'message'=> 'Access denied.'
+            ], 403);
         }
         return $next($request);
     }
