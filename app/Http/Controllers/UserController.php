@@ -10,6 +10,9 @@ use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
+    /**
+     * Instantiate a new controller instance.
+     */
     public function __construct()
     {
         $this->middleware('auth:sanctum')->only([
@@ -147,12 +150,11 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'User updated.',
-            'data' =>
-            [
-                'id' => $user->id,
-                'username' => $user->username,
-                'email' => $user->email
-            ]
+            'data' => User::find($user->id, [
+                'id',
+                'username',
+                'email'
+            ])
         ]);
     }
 
@@ -174,12 +176,11 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'User deleted.',
-            'data' =>
-            [
-                'id' => $user->id,
-                'username' => $user->username,
-                'email' => $user->email
-            ]
+            'data' =>User::find($user->id, [
+                'id',
+                'username',
+                'email'
+            ])
         ]);
     }
 
