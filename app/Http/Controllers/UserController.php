@@ -16,7 +16,13 @@ class UserController extends Controller
     public function index()
     {
         return response()->json([
-            'data' => User::all()
+            'data' => User::get([
+                'id',
+                'username',
+                'email',
+                'created_at',
+                'updated_at'
+            ])
         ]);
     }
 
@@ -62,7 +68,13 @@ class UserController extends Controller
     public function show(string $id)
     {
         return response()->json([
-            'data' => User::find($id)
+            'data' => User::find($id, [
+                'id',
+                'username',
+                'email',
+                'created_at',
+                'updated_at'
+            ])
         ]);
     }
 
@@ -71,26 +83,25 @@ class UserController extends Controller
      */
     public function search(Request $request)
     {
-        $input = null;
+        $input = trim($request->input('q')) ? $request->input('q') : null;
 
-        if ($request->input('username'))
-        {
-            $input = trim($request->input('username'));
-        }
-        else if ($request->input('email'))
-        {
-            $input = trim($request->input('email'));
-        }
         if ($input == null)
         {
             return response()->json([
                 'message' => 'Search by username or email.'
             ]);
         }
+
         return response()->json([
             'data' => User::where('username', 'like', "%{$input}%")
                           ->orWhere('email', 'like', "%{$input}%")
-                          ->get()
+                          ->get([
+                            'id',
+                            'username',
+                            'email',
+                            'created_at',
+                            'updated_at'
+                          ])
         ]);
     }
 
@@ -126,6 +137,7 @@ class UserController extends Controller
             'message' => 'User updated.',
             'data' =>
             [
+                'id' => $user->id,
                 'username' => $user->username,
                 'email' => $user->email
             ]
@@ -135,13 +147,27 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
         $user = User::find($id);
+
+        if ($request->user()->id === $user->id)
+        {
+            return response()->json([
+                'message' => "You cannot delete your own account!"
+            ], 422);
+        }
+
         $user->delete();
+
         return response()->json([
             'message' => 'User deleted.',
-            'data' => $user
+            'data' =>
+            [
+                'id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email
+            ]
         ]);
     }
 
