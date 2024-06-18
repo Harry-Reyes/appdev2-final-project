@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Job;
 use Illuminate\Http\Request;
-use Laravel\Sanctum\PersonalAccessToken;
-use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class JobController extends Controller
 {
