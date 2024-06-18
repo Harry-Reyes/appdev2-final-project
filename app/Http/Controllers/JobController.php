@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Job;
 use Illuminate\Http\Request;
 use Laravel\Sanctum\PersonalAccessToken;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class JobController extends Controller
 {
@@ -14,7 +15,15 @@ class JobController extends Controller
     public function index()
     {
         return response()->json([
-            'data' => Job::all()
+            'data' => Job::with('user:id,username,email')->orderByDesc('updated_at')->get([
+                'id',
+                'user_id',
+                'title',
+                'company',
+                'site',
+                'desc',
+                'updated_at'
+            ])
         ]);
     }
 
@@ -26,21 +35,27 @@ class JobController extends Controller
         $fields = $request->validate([
             'title' => 'required|string',
             'company' => 'required|string',
-            'site' => 'url',
-            'desc' => 'string|max:3000'
+            'site' => 'required|url',
+            'desc' => 'required|string|max:3000'
         ]);
 
-        $token = PersonalAccessToken::findToken($request->user()->currentAccessToken());
-        $user = $token->tokenable;
+        $user = $request->user();
 
-        $fields[] = ['user_id' => $user->id];
+        $fields['user_id'] = $user->id;
 
         $job = Job::create($fields);
 
         return response()->json([
             'message' => 'Job listed.',
-            'title' => $job->title,
-            'company' => $job->company
+            'data' =>
+            [
+                'id' => $job->id,
+                'title' => $job->title,
+                'company' => $job->company,
+                'site' => $job->site,
+                'desc' => $job->desc,
+                'updated_at' => $job->updated_at
+            ]
         ]);
     }
 
@@ -50,7 +65,44 @@ class JobController extends Controller
     public function show(string $id)
     {
         return response()->json([
-            'data' => Job::find($id)
+            'data' => Job::with('user:id,username,email')->find($id, [
+                'id',
+                'user_id',
+                'title',
+                'company',
+                'site',
+                'desc',
+                'updated_at'
+            ])
+        ]);
+    }
+    /**
+     * Display a filtered listing of the resource.
+     */
+    public function search(Request $request)
+    {
+        $input = trim($request->input('q')) ? $request->input('q') : null;
+
+        if ($input == null)
+        {
+            return response()->json([
+                'message' => 'Search by job title or company.'
+            ]);
+        }
+
+        return response()->json([
+            'data' => Job::with('user:id,username,email')
+                         ->where('title', 'like', "%{$input}%")
+                         ->orWhere('company', 'like', "%{$input}%")
+                         ->get([
+                            'id',
+                            'user_id',
+                            'title',
+                            'company',
+                            'site',
+                            'desc',
+                            'updated_at'
+                         ])
         ]);
     }
 
@@ -66,24 +118,57 @@ class JobController extends Controller
             'desc' => 'string|max:3000'
         ]);
 
-        $job = Job::find($id)->update($fields);
+        $job = Job::find($id);
+
+        if ($request->user()->id !== $job->user_id)
+        {
+            return response()->json([
+                'message' => "You cannot edit other's job."
+            ], 401);
+        }
+
+        $job->update($fields);
 
         return response()->json([
             'message' => 'Job updated.',
-            'data' => Job::find($id)
+            'data' =>
+            [
+                'id' => $job->id,
+                'title' => $job->title,
+                'company' => $job->company,
+                'site' => $job->site,
+                'desc' => $job->desc,
+                'updated_at' => $job->updated_at
+            ]
         ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
         $job = Job::find($id);
+
+        if ($request->user()->id !== $job->user_id)
+        {
+            return response()->json([
+                'message' => "You cannot delete other's job."
+            ], 401);
+        }
+
         $job->delete();
+
         return response()->json([
             'message' => 'Job deleted.',
-            'data' => $job
+            'data' =>
+            [
+                'id' => $job->id,
+                'title' => $job->title,
+                'company' => $job->company,
+                'site' => $job->site,
+                'desc' => $job->desc,
+            ]
         ]);
     }
 }
