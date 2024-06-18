@@ -16,27 +16,46 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::apiResource('users', UserController::class);
+// Create user or Register user
+Route::post('users', [UserController::class, 'store']);
 
-// Create token
+// Create token or Login user
 Route::post('login', [UserController::class, 'login']);
 
+// For getting users or a user
 Route::apiResource('jobs', JobController::class);
 
+// Search jobs
+Route::post('jobs/search', [JobController::class, 'search']);
+
 Route::middleware('auth:sanctum')->group(function () {
-    // Retrieving users
+    // * USERS
+    // Get all users
     Route::get('users', [UserController::class, 'index']);
+
+    // Get a user
     Route::get('users/{user}', [UserController::class, 'show']);
+
+    // Search users
     Route::post('users/search', [UserController::class, 'search']);
 
-    // Delete only accessible by admin token
+    // Delete user only accessible by admin token
     Route::middleware('admin')->delete( 'users/{user}', [UserController::class, 'destroy']);
 
-    // Single user
-    Route::get('/user', function (Request $request) {return $request->user();});
-    Route::match(['put', 'patch'], 'user/edit', [UserController::class, 'update']);
+    // Edit user
+    Route::match(['put', 'patch'], 'user', [UserController::class, 'update']);
 
-    // Destroy token
+    // Destroy token or Logout user
     Route::post('logout', [UserController::class, 'logout']);
+
+    // * JOBS
+    // Create job
+    Route::post('jobs', [JobController::class, 'store']);
+
+    // Edit job
+    Route::match(['put', 'patch'], 'jobs/{job}', [JobController::class, 'update']);
+
+    // Delete job
+    Route::delete('jobs/{job}', [JobController::class, 'destroy']);
 });
 
