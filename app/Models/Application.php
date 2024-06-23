@@ -13,11 +13,6 @@ class Application extends Model
 
     protected $fillable = ['user_id' ,'job_id' ,'status'];
 
-    public function applications(): HasMany
-    {
-        return $this->hasMany(Application::class);
-    }
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
