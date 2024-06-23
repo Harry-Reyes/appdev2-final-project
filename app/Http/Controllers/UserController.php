@@ -176,7 +176,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'User deleted.',
-            'data' =>User::findOrFail($user->id, [
+            'data' => $user->only([
                 'id',
                 'username',
                 'email'
