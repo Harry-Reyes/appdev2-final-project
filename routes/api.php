@@ -1,8 +1,9 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ApplicationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,3 +37,21 @@ Route::apiResource('jobs', JobController::class);
 
 // Search jobs
 Route::post('jobs/search', [JobController::class, 'search']);
+
+Route::post('jobs/{job}/apply', [JobController::class, 'apply']);
+
+// * JOB APPLICATIONS
+Route::apiResource('applications', ApplicationController::class)->only(['index', 'destroy']);
+
+Route::controller(ApplicationController::class)->prefix('applications')->group(function () {
+    Route::get('my', 'check_applications');
+
+    Route::get('applicants', 'check_applicants');
+
+    Route::match(['put', 'patch'], '{application}/accept', 'accept');
+
+    Route::match(['put', 'patch'], '{application}/decline', 'decline');
+
+    Route::match(['put', 'patch'], '{application}/undo', 'undo');
+});
+

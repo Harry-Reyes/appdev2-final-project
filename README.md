@@ -16,10 +16,14 @@ This Laravel 10 API functions as a job hunting and application.
 
     - **For USERS:**
 
-        Total user routes: 8
+        Total routes for users: 8
 
             POST
+            1st User
             http://127.0.0.1:8000/api/users?username=harry&email=harry@example.com&password=Bruh_1234&password_confirmation=Bruh_1234
+
+            2nd User
+            http://127.0.0.1:8000/api/users?username=bruh&email=bruh@example.com&password=Harry_1234&password_confirmation=Harry_1234
 
             GET w/token
             http://127.0.0.1:8000/api/users
@@ -44,7 +48,7 @@ This Laravel 10 API functions as a job hunting and application.
 
     - **For JOBS:**
 
-        Total job routes: 6
+        Total routes for jobs: 6
 
             GET
             http://127.0.0.1:8000/api/jobs
@@ -66,3 +70,25 @@ This Laravel 10 API functions as a job hunting and application.
     ---
 
     - **For JOB APPLICATIONS:**
+
+        Total routes for job applications: 8
+
+            POST w/token
+            http://127.0.0.1:8000/api/jobs/1/apply
+
+            GET w/token
+            http://127.0.0.1:8000/api/applications?token=ijSLomBiyFv7Ic0Q811by7HK0QChc3ef
+
+            http://127.0.0.1:8000/api/applications/my
+
+            http://127.0.0.1:8000/api/applications/applicants
+
+            PATCH w/token
+            http://127.0.0.1:8000/api/applications/1/accept
+
+            http://127.0.0.1:8000/api/applications/1/decline
+
+            http://127.0.0.1:8000/api/applications/1/undo?token=ijSLomBiyFv7Ic0Q811by7HK0QChc3ef
+
+            DELETE w/token
+            http://127.0.0.1:8000/api/applications/1

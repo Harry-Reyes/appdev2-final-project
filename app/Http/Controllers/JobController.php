@@ -59,7 +59,7 @@ class JobController extends Controller
 
         return response()->json([
             'message' => 'Job listed.',
-            'data' => Job::find($job->id, [
+            'data' => Job::findOrFail($job->id, [
                 'id',
                 'title',
                 'company',
@@ -76,7 +76,7 @@ class JobController extends Controller
     public function show(string $id)
     {
         return response()->json([
-            'data' => Job::with('user:id,username,email')->find($id, [
+            'data' => Job::with('user:id,username,email')->findOrFail($id, [
                 'id',
                 'user_id',
                 'title',
@@ -129,13 +129,18 @@ class JobController extends Controller
             'desc' => 'string|max:3000'
         ]);
 
-        $job = Job::find($id);
+        $job = Job::with('applications')->findOrFail($id);
 
         if ($request->user()->id !== $job->user_id)
         {
             return response()->json([
                 'message' => "You cannot edit other's job."
             ], 401);
+        } else if ($job->applications->first())
+        {
+            return response()->json([
+                'message' => 'You cannot edit a job with applications.'
+            ]);
         }
 
         $job->update($fields);
@@ -158,7 +163,7 @@ class JobController extends Controller
      */
     public function destroy(Request $request, string $id)
     {
-        $job = Job::find($id);
+        $job = Job::findOrFail($id);
 
         if ($request->user()->id !== $job->user_id)
         {
@@ -184,7 +189,7 @@ class JobController extends Controller
 
     public function apply(Request $request, string $id)
     {
-        $job = Job::find($id);
+        $job = Job::findOrFail($id);
 
         if ($request->user()->id === $job->user_id)
         {
@@ -203,7 +208,7 @@ class JobController extends Controller
             'data' => Application::with([
                 'user:id,username',
                 'job:id,title,company'
-            ])->find($application->id, [
+            ])->findOrFail($application->id, [
                 'id',
                 'user_id',
                 'job_id',

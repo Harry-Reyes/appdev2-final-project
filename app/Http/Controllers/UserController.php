@@ -83,7 +83,7 @@ class UserController extends Controller
     public function show(string $id)
     {
         return response()->json([
-            'data' => User::find($id, [
+            'data' => User::findOrFail($id, [
                 'id',
                 'username',
                 'email',
@@ -150,7 +150,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'User updated.',
-            'data' => User::find($user->id, [
+            'data' => User::findOrFail($user->id, [
                 'id',
                 'username',
                 'email'
@@ -163,7 +163,7 @@ class UserController extends Controller
      */
     public function destroy(Request $request, string $id)
     {
-        $user = User::find($id);
+        $user = User::findOrFail($id);
 
         if ($request->user()->id === $user->id)
         {
@@ -176,7 +176,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'User deleted.',
-            'data' =>User::find($user->id, [
+            'data' =>User::findOrFail($user->id, [
                 'id',
                 'username',
                 'email'
