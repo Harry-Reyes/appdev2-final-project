@@ -75,7 +75,7 @@ class ApplicationController extends Controller
     {
         return response()->json([
             'data' => Job::with([
-                'applications:id,job_id,user_id,created_at',
+                'applications:id,job_id,user_id,status,created_at',
                 'applications.user:id,username,email'
             ])->where('user_id', $request->user()->id)
             ->orderByDesc('created_at')
